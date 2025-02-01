@@ -27,13 +27,14 @@ class AuthProvider extends ChangeNotifier {
     return _user;
   }
 
-  Future<void> register(String username, String email, String password) async {
+  Future<User?> register(String username, String email, String password) async {
     _user = await authService.register(username, email, password);
     if (_user != null) {
       _token = _user!.token;
       await _saveUserToPrefs(_user!);
     }
     notifyListeners();
+    return _user;
   }
 
   Future<void> logout() async {

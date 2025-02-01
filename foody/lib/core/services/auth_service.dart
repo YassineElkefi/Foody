@@ -61,7 +61,7 @@ class AuthService {
 
     if (result.hasException) {
       print(result.exception.toString());
-      return null;
+      throw Exception(result.exception?.graphqlErrors.first.message ?? 'Registration failed');
     }
     
     return User.fromJson(result.data!['register']);

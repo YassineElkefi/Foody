@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:foody/features/auth/providers/auth_provider.dart';
+import 'package:foody/features/home/screens/home_screen.dart';
 import 'package:foody/shared/widgets/styled_button_text.dart';
 import 'package:foody/shared/widgets/styled_filled_button.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,13 +19,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _submitForm() {
+  void _handleRegister() async{
     if (_formkey.currentState!.validate()) {
-      print('Form is valid');
-    } else {
-      print('Form is invalid');
-    }
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final email = _emailController.text;
+      final password = _passwordController.text;
+      final username = _usernameController.text;
+      try {
+        final user = await authProvider.register(username, email, password);
+        
+        // Check if widget is still mounted and user is authenticated
+        if (context.mounted && user != null) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+        }
+      } catch (e) {
+        // Handle login error
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
+      }
   }
+}
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -89,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             //Submit Button
             SizedBox(width: 150,
             child: StyledFilledButton(
-              onPressed: _submitForm,
+              onPressed: _handleRegister,
               child: StyledButtonText('Register'),
             ),
             ),      
