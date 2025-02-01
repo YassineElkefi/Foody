@@ -20,32 +20,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   void _login() async {
-    if (_formkey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
-
-      final email = _emailController.text;
-      final password = _passwordController.text;
-      await authProvider.login(email, password);
-
-      if (!mounted) return;
-
-      if (authProvider.isAuthenticated) {
-        if(authProvider.isAdmin){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminScreen()));
+  if (_formkey.currentState!.validate()) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    
+    try {
+        final user = await authProvider.login(email, password);
+        
+        // Check if widget is still mounted and user is authenticated
+        if (context.mounted && user != null) {
+          if (user.role == 'ROLE_ADMIN') {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const AdminScreen()),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
         }
-        else if(!authProvider.isAdmin){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } catch (e) {
+        // Handle login error
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: ${e.toString()}')),
+          );
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Invalid email or password'),
-        ));
       }
-    } else {
-      print('Form is invalid');
-    }
   }
+}
   @override
   Widget build(BuildContext context) {
     return Padding(

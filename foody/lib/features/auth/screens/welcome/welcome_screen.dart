@@ -19,18 +19,42 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
 
   bool _isSignUpForm = true;
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (authProvider.isAuthenticated) {
+        if (authProvider.isAdmin) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const AdminScreen())
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const HomeScreen())
+          );
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    //final authProvider = Provider.of<AuthProvider>(context);
 
-    if(authProvider.isAuthenticated){
-      if (authProvider.isAdmin){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminScreen()));
-      }else{
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    /* WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (authProvider != null && authProvider.isAuthenticated) {
+        if (authProvider.isAdmin) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AdminScreen()));
+        } else {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+        }
       }
-    }
+    }); */
+
     return Scaffold(
       appBar: AppBar(
         title: StyledTitle('Foody'),

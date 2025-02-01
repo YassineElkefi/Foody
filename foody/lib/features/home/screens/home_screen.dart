@@ -15,19 +15,16 @@ class HomeScreen extends StatelessWidget {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    logout(){
+    void handleLogout() {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-      authProvider.logout();
-
-      if(authProvider.isAuthenticated){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Logout failed'),
-        ));
-      }else{
-        Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
-      }
+      authProvider.logout().then((_) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          (route) => false,
+        );
+      });
     }
+
     return Scaffold(
       appBar: AppBar(
         title: StyledTitle('Home Screen'),
@@ -44,7 +41,7 @@ class HomeScreen extends StatelessWidget {
               StyledText('Username: ${authProvider.user!.username}'),
               StyledText('Email: ${authProvider.user!.email}'),
               StyledText('Role: ${authProvider.user!.role}'),
-              StyledFilledButton(onPressed: logout, child: StyledButtonText('Logout')),
+              StyledFilledButton(onPressed: handleLogout, child: StyledButtonText('Logout')),
             ],
           ),
         ),

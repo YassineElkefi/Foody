@@ -11,7 +11,15 @@ class AdminScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    void handleLogout() {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.logout().then((_) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          (route) => false,
+        );
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Screen'),
@@ -26,10 +34,7 @@ class AdminScreen extends StatelessWidget {
               const Spacer(),
               const StyledHeading('Welcome Admin!'),
               const Spacer(),
-              StyledFilledButton(onPressed: (){
-                authProvider.logout();
-                Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context) => WelcomeScreen())));
-              }, child: const StyledButtonText('Logout')),
+              StyledFilledButton( onPressed: handleLogout, child: const StyledButtonText('Logout')),
               const Spacer(),
             ],
           )
